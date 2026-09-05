@@ -36,9 +36,61 @@ As Chummer is a WinForms application, support for other operating systems is lim
 2. Set up and run [CrossOver](https://www.codeweavers.com/crossover), a hassle-free version of Wine with commercial support. It costs money (though it has a limited free trial), but what you are effectively purchasing is for someone else to do all the hard work setting up Wine for you, no matter what you want to run on it. If you do not want to mess around with technical stuff, we highly recommend using CrossOver.
 3. Set up and run a Windows virtual machine through programs like [VirtualBox](https://www.virtualbox.org/), [VMWare Fusion](https://www.vmware.com/products/fusion.html), or [Parallels](https://www.parallels.com/). You will need a valid copy of Windows and lots of disk space, but Chummer5a will run on a Windows virtual machine exactly how it would run under full Windows. Virtual machine hosts are generally not available for Chrome OS, though with some behind-the-scenes tinkering, it can still be possible to run a Windows virtual machine on Chrome OS.
 
+### Debian 13 Wine setup (x86-64)
+
+A user reported successfully running the Linux-built application with the
+following Wine setup. Install Wine with 32-bit support and Winetricks:
+
+```sh
+sudo dpkg --add-architecture i386
+sudo apt update
+sudo apt install wine wine32 wine64 libwine libwine:i386 fonts-wine winetricks
+```
+
+Debian's [winetricks package](https://packages.debian.org/trixie/winetricks) is in
+the `contrib` repository component; enable it in your Debian APT sources if the
+package is unavailable, then run `sudo apt update` again.
+
+Install .NET Framework 4.8 as your regular user:
+
+```sh
+winetricks -q dotnet48
+```
+
+Use the same Wine prefix when installing .NET and launching Chummer. With
+`WINEPREFIX` unset, both commands use the default prefix, `~/.wine`.
+The Linux .NET SDK used for compilation and the .NET Framework installed inside
+Wine serve separate purposes; both are needed to build and run this way.
+
 ## Contributing
 
 Please take a look at our [contributing](https://github.com/chummer5a/chummer5a/blob/master/CONTRIBUTING.md) guidelines if you're interested in helping!
+
+### Building the desktop application on Linux
+
+Install the .NET 8 SDK (8.0.401 or a newer 8.0.4xx patch, as specified by
+`global.json`). From the repository root, run:
+
+```sh
+dotnet build Chummer/Chummer.csproj -c Release
+```
+
+The first build requires access to NuGet to download dependencies, including
+the .NET Framework reference assemblies. The output is in `Chummer/bin/Release/`;
+keep that directory's DLLs and data files alongside `Chummer5.exe`.
+This builds the desktop application, not the full solution's optional tools and
+plugins. It uses the generated C# files already checked into the repository;
+editing T4 templates requires regenerating those files separately.
+
+The output still targets Windows and .NET Framework 4.8. Run it using your
+configured Wine environment, for example:
+
+```sh
+cd Chummer/bin/Release
+wine Chummer5.exe
+```
+
+A successful Linux build does not establish Wine runtime compatibility.
 
 ## History
 

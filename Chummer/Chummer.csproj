@@ -20,6 +20,7 @@
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <GenerateAssemblyInfo>True</GenerateAssemblyInfo>
+    <GenerateResourceUsePreserializedResources Condition="'$(MSBuildRuntimeType)' == 'Core'">true</GenerateResourceUsePreserializedResources>
     <UseWindowsForms>true</UseWindowsForms>
     <UseWPF>true</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
@@ -304,7 +305,7 @@
     <Content Include="customdata\Education Qualities Apply Karma Discount in Create Mode\manifest.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="customdata\Exclude German Sourcebooks\manifest.xml">
+    <Content Include="customdata\Exclude German sourcebooks\manifest.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="customdata\Fixed Nitama Sporter Stats\amend_weapons.xml">
@@ -1021,7 +1022,7 @@
     <Content Include="customdata\Education Qualities Apply Karma Discount in Create Mode\amend_qualities.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="customdata\Exclude German Sourcebooks\amend_german_books.xml">
+    <Content Include="customdata\Exclude German sourcebooks\amend_german_books.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="customdata\Hand-Based Cyberware Can Go Anywhere\amend_cyberware.xml">
@@ -25737,24 +25738,12 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <Target Name="PrepareChummerOutput" AfterTargets="Build">
+    <Copy SourceFiles="$(MSBuildProjectDirectory)/../LICENSE" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
+    <MakeDir Directories="$(TargetDir)livecustomdata;$(TargetDir)packs;$(TargetDir)settings" />
+  </Target>
   <PropertyGroup>
-    <PostBuildEvent Condition=" '$(OS)' != 'Unix' ">
-      copy "$(SolutionDir)LICENSE.txt" "$(TargetDir)LICENSE.txt"
-    </PostBuildEvent>
-    <PostBuildEvent Condition=" '$(OS)' == 'Unix' ">
-      cp "$(SolutionDir)LICENSE.txt" "$(TargetDir)LICENSE.txt"
-    </PostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PostBuildEvent>
-        copy "$(SolutionDir)LICENSE" "$(TargetDir)LICENSE"
-        if not exist "$(TargetDir)livecustomdata" mkdir "$(TargetDir)livecustomdata"
-        if not exist "$(TargetDir)packs" mkdir "$(TargetDir)packs"
-        if not exist "$(TargetDir)settings" mkdir "$(TargetDir)settings"
-</PostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PreBuildEvent>
+    <PreBuildEvent Condition="'$(OS)' == 'Windows_NT'">
         if exist "$(SolutionDir).git\hooks\" (
             copy /y "$(SolutionDir)git\hooks\*.*" "$(SolutionDir).git\hooks"
         ) else (
