@@ -92,6 +92,27 @@ wine Chummer5.exe
 
 A successful Linux build does not establish Wine runtime compatibility.
 
+### Creating a distribution ZIP
+
+With the .NET 8 SDK, GNU Make, Git, GNU tar, and `zip` installed, run from the
+repository root:
+
+```sh
+make dist
+```
+
+Running `make` without a target does the same thing. The result is
+`dist/chummer.zip`, containing a `Chummer/` folder with the application,
+dependencies, game data, this README, license notices, and `source.tar.gz`.
+The source archive contains the working copies of Git-tracked files plus the
+Makefile, so tracked local edits are included.
+
+Packaging builds into a fresh temporary directory rather than copying your used
+`bin/Release` directory. Personal saves, logs, profiling data, and debug symbols
+are excluded from the application ZIP. Campaign presets and rulebook PDFs are
+not added by this initial packaging target. Players should extract the entire
+ZIP and use the Windows or Wine setup instructions above.
+
 ### Measuring character UI loading time
 
 To collect local timings with a Release build, close Chummer and start it with:
