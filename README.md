@@ -103,9 +103,10 @@ make dist
 
 Running `make` without a target does the same thing. The result is
 `dist/chummer.zip`, containing a `Chummer/` folder with the application,
-dependencies, game data, this README, license notices, and `source.tar.gz`.
-The source archive contains the working copies of Git-tracked files plus the
-Makefile, so tracked local edits are included.
+dependencies, game data, a short [player quick start](docs/distribution/README.md),
+license notices, and `source.tar.gz`. The source archive contains the working
+copies of Git-tracked files plus the Makefile and player quick start, so tracked
+local edits are included. This developer README remains in the source archive.
 
 Packaging builds into a fresh temporary directory rather than copying your used
 `bin/Release` directory. Personal saves, logs, profiling data, and debug symbols

@@ -14,9 +14,10 @@ dist:
 	stage=$$(mktemp -d "$(CURDIR)/dist/.package.XXXXXX"); \
 	trap 'rm -rf "$$stage"' EXIT HUP INT TERM; \
 	$(DOTNET) build Chummer/Chummer.csproj -c Release --nologo -o "$$stage/Chummer"; \
-	cp README.md cs_license.txt xml_license.txt "$$stage/Chummer/"; \
-	git ls-files -z -- . ':!:Makefile' > "$$stage/source-files"; \
-	tar --null -T "$$stage/source-files" -czf "$$stage/Chummer/source.tar.gz" Makefile; \
+	cp docs/distribution/README.md "$$stage/Chummer/README.md"; \
+	cp cs_license.txt xml_license.txt "$$stage/Chummer/"; \
+	git ls-files -z -- . ':!:Makefile' ':!:docs/distribution/README.md' > "$$stage/source-files"; \
+	tar --null -T "$$stage/source-files" -czf "$$stage/Chummer/source.tar.gz" Makefile docs/distribution/README.md; \
 	(cd "$$stage" && zip -q -r chummer.zip Chummer \
 		-x '*.pdb' '*/logs/*' '*/saves/*' '*.chum5' '*.chum5lz' '*.profile'); \
 	mv -f "$$stage/chummer.zip" dist/chummer.zip; \
