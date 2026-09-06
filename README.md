@@ -92,6 +92,33 @@ wine Chummer5.exe
 
 A successful Linux build does not establish Wine runtime compatibility.
 
+### Measuring character UI loading time
+
+To collect local timings with a Release build, close Chummer and start it with:
+
+```sh
+cd Chummer/bin/Release
+CHUMMER_PERF=1 wine Chummer5.exe
+```
+
+Reproduce character creation and switch between the character's tabs, then
+repeat the same actions in the same session to distinguish first-use costs.
+Timings are written to `logs/performance-*.tsv` in the application directory.
+Each row contains a UTC completion timestamp, elapsed milliseconds, and a code
+stage name. This diagnostic file is local and does not include character names
+or file contents. Omit `CHUMMER_PERF` to disable it on the next launch.
+
+`CharacterCreate.InitializeComponent`, `theme`, `translation`, and `tooltips`
+measure UI construction stages. `load_frm_create_*` measures existing load
+phases, while `_lstActiveSkills` and related entries measure skill-list setup.
+Parent timings include child timings, so do not sum every row. Concurrent
+operations may overlap, and diagnostic file writes add some overhead.
+`tab.next_ui_callback.*` measures tab selection through the next queued UI
+callback; it does **not** measure completed painting. Compare it with
+`CharacterCreate.tab.RefreshPasteStatus` and the visible delay when diagnosing
+tab switching. These tab probes cover character creation's main and street-gear
+tabs; they do not cover every dialog or career-mode tab.
+
 ## History
 
 This project is a continuation of work on the original Chummer projects for Shadowrun 4th and 5th editions, developed by Keith Rudolph and Adam Schmidt. Due to the closure of code.google.com, github repositories of their code have been created as a marker of their work. Please note, Chummer 4 is considered abandonware and is not maintained by the chummer5a team, and exists solely for historical purposes.

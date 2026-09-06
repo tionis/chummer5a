@@ -63,9 +63,34 @@ namespace Chummer
 
         private void ConstructorCommon()
         {
-            InitializeComponent();
+            using (PerformanceDebugUtils.Measure("CharacterCreate.InitializeComponent"))
+                InitializeComponent();
+            if (PerformanceDebugUtils.Enabled)
+            {
+                TrackTabTiming(tabCharacterTabs);
+                TrackTabTiming(tabStreetGearTabs);
+            }
             tabSkillsUc.MyToken = GenericToken;
             tabPowerUc.MyToken = GenericToken;
+        }
+
+        // Measures selection through the next queued UI callback, not completion of painting.
+        private static void TrackTabTiming(TabControl tabs)
+        {
+            System.Diagnostics.Stopwatch watch = null;
+            tabs.Selecting += (sender, args) => watch = System.Diagnostics.Stopwatch.StartNew();
+            tabs.Selected += (sender, args) =>
+            {
+                System.Diagnostics.Stopwatch selectedWatch = watch;
+                if (selectedWatch == null || tabs.IsDisposed || !tabs.IsHandleCreated)
+                    return;
+                string stage = "tab.next_ui_callback." + tabs.Name + "." + args.TabPage?.Name;
+                tabs.BeginInvoke(new Action(() =>
+                {
+                    selectedWatch.Stop();
+                    PerformanceDebugUtils.Record(stage, selectedWatch.Elapsed);
+                }));
+            };
         }
 
         [Obsolete("This constructor is for use by form designers only.", true)]
@@ -83,9 +108,12 @@ namespace Chummer
             _fntStrikeout = new Font(treQualities.Font, FontStyle.Strikeout);
             tabSkillsUc.CachedCharacter = objCharacter;
             tabPowerUc.CachedCharacter = objCharacter;
-            this.UpdateLightDarkMode();
-            this.TranslateWinForm();
-            this.UpdateParentForToolTipControls();
+            using (PerformanceDebugUtils.Measure("CharacterCreate.theme"))
+                this.UpdateLightDarkMode();
+            using (PerformanceDebugUtils.Measure("CharacterCreate.translation"))
+                this.TranslateWinForm();
+            using (PerformanceDebugUtils.Measure("CharacterCreate.tooltips"))
+                this.UpdateParentForToolTipControls();
 
             ContextMenuStrip[] lstCMSToTranslate =
             {
@@ -12840,7 +12868,8 @@ namespace Chummer
                 return;
             try
             {
-                await RefreshPasteStatus(GenericToken).ConfigureAwait(false);
+                using (PerformanceDebugUtils.Measure("CharacterCreate.tab.RefreshPasteStatus"))
+                    await RefreshPasteStatus(GenericToken).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {

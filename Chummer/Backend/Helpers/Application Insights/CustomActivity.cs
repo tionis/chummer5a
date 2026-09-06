@@ -139,6 +139,7 @@ namespace Chummer
             if (Interlocked.CompareExchange(ref _intIsDisposed, 1, 0) > 0)
                 return;
 
+            PerformanceDebugUtils.Record(OperationName, Duration);
             Timekeeper.Finish(OperationName);
             switch (MyOperationType)
             {
